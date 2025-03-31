@@ -31,8 +31,9 @@ public class TimeClient {
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    // ch.pipeline().addLast(new TimeClientHandler(), new TimeDecoder());
-                    ch.pipeline().addLast(new TimeClientHandler());
+                    // 编码需要在 处理handle前面
+                    // ch.pipeline().addLast(new TimeDecoder(), new TimeClientHandler());
+                    ch.pipeline().addLast(new TimePojoDecoder(), new TimeClientPojoHandler());
                 }
             });
 
