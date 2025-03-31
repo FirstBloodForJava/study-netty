@@ -1,9 +1,7 @@
 package com.study.netty.discard;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -17,7 +15,7 @@ public class DiscardServer {
         this.port = port;
     }
 
-    public void run() throws InterruptedException {
+    public void run(Class<? extends ChannelInboundHandlerAdapter > clazz) throws InterruptedException {
         // NioEventLoopGroup是一个处理I/O操作的多线程事件循环。Netty为不同类型的传输提供了各种EventLoopGroup实现。
         // 在本例中，我们将实现一个服务器端应用程序，因此将使用两个NioEventLoopGroup。
         // 第一个通常被称为 boss ，它接受传入的连接。
@@ -37,7 +35,7 @@ public class DiscardServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             // 继承 ChannelInboundHandlerAdapter 的新类
-                            ch.pipeline().addLast(new EchoServerHandler());
+                            ch.pipeline().addLast(clazz.newInstance());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128) // 您还可以设置特定于Channel实现的参数。我们正在编写一个TCP/IP服务器，所以我们可以设置套接字选项，如tcpNoDelay和keepAlive。
@@ -62,7 +60,7 @@ public class DiscardServer {
             port = Integer.parseInt(args[0]);
         }
 
-        new DiscardServer(port).run();
+        new DiscardServer(port).run(EchoServerHandler.class);
     }
 
 }
